@@ -1,0 +1,176 @@
+{% extends "polihack_site/base.html" %}
+
+{% block title %}
+    Add Subject
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <h2>Add Subject</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_name">Name:</label>
+                <input type="text" class="form-control" id="id_name" name="name">
+            </div>
+
+            {{ form.as_p }}
+
+            <h3>Drag & Drop Video</h3>
+            <div class="dropzone" id="video-dropzone">
+                Drag & Drop Video Here
+            </div>
+            <div id="video-file-list"></div>
+
+            <h3>Drag & Drop Document</h3>
+            <div class="dropzone" id="document-dropzone">
+                Drag & Drop Document Here
+            </div>
+            <div id="document-file-list"></div>
+
+            <h3>Planning Schedule</h3>
+            {{ minutes_formset.management_form }}
+            <div id="formset">
+                {% for form in minutes_formset %}
+                    <div class="formset-row">
+                        {{ form.date.label_tag }} {{ form.date }} {{ form.minutes.label_tag }} {{ form.minutes }}
+                        <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-secondary" id="add-form">Add Another Entry</button>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .dropzone {
+        border: 2px dashed #ccc;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+
+    .dropzone.dragging {
+        background-color: #f1f1f1;
+    }
+
+    .file-item {
+        margin-top: 10px;
+    }
+
+    .formset-row {
+        margin-bottom: 10px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+            var videoDropzone = document.getElementById('video-dropzone');
+            var documentDropzone = document.getElementById('document-dropzone');
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                videoDropzone.addEventListener(eventName, preventDefaults, false);
+                documentDropzone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function highlight(dropzone) {
+                dropzone.classList.add('dragging');
+            }
+
+            function unhighlight(dropzone) {
+                dropzone.classList.remove('dragging');
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                videoDropzone.addEventListener(eventName, () => highlight(videoDropzone), false);
+                documentDropzone.addEventListener(eventName, () => highlight(documentDropzone), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                videoDropzone.addEventListener(eventName, () => unhighlight(videoDropzone), false);
+                documentDropzone.addEventListener(eventName, () => unhighlight(documentDropzone), false);
+            });
+
+            videoDropzone.addEventListener('drop', handleVideoDrop, false);
+            documentDropzone.addEventListener('drop', handleDocumentDrop, false);
+
+            function handleVideoDrop(e) {
+                var dt = e.dataTransfer;
+                var files = dt.files;
+
+                handleFiles(files, 'video');
+            }
+
+            function handleDocumentDrop(e) {
+                var dt = e.dataTransfer;
+                var files = dt.files;
+
+                handleFiles(files, 'document');
+            }
+
+            function handleFiles(files, type) {
+                if (type === 'video') {
+                    var videoInput = document.getElementById('id_video_files');
+                    videoInput.files = files;
+                    displayFile('video-file-list', files[0].name, 'video');
+                } else if (type === 'document') {
+                    var documentInput = document.getElementById('id_pdf_files');
+                    documentInput.files = files;
+                    displayFile('document-file-list', files[0].name, 'document');
+                }
+            }
+
+            function displayFile(target, fileName, type) {
+                var fileList = document.getElementById(target);
+                var fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = fileName + ' <button class="btn btn-danger btn-sm" onclick="removeFile(this, \'' + type + '\')">Delete</button>';
+                fileList.appendChild(fileItem);
+            }
+
+            function removeFile(btn, type) {
+                var fileList = btn.parentNode.parentNode;
+                var fileItem = btn.parentNode;
+                var fileName = fileItem.firstChild.textContent;
+                fileItem.remove();
+
+                if (type === 'video') {
+                    var videoInput = document.getElementById('id_video_files');
+                    videoInput.value = '';
+                } else if (type === 'document') {
+                    var documentInput = document.getElementById('id_pdf_files');
+                    documentInput.value = '';
+                }
+            }
+
+            var formset = document.getElementById('formset');
+            var addFormButton = document.getElementById('add-form');
+
+            addFormButton.addEventListener('click', function() {
+                var newForm = formset.firstElementChild.cloneNode(true);
+                formset.appendChild(newForm);
+            });
+
+            // Prevent deletion of the last formset row
+            document.addEventListener('click', function(event) {
+                if (event.target && event.target.classList.contains('remove-form')) {
+                    var formsetRows = document.querySelectorAll('.formset-row');
+                    if (formsetRows.length > 1) {
+                        event.target.parentNode.remove();
+                    }
+                }
+            });
+    });
+</script>
+{% endblock %}

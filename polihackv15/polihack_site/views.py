@@ -1,8 +1,11 @@
 from django.http import JsonResponse
-from django.shortcuts import render
-from .models import UserData
-from datetime import date
-from .models import Subject
+from django.shortcuts import render, redirect
+from django.forms import formset_factory
+from .forms import SubjectForm, LearningMinutesDayForm
+from .models import UserData, Subject, LearningMinutesDay
+
+
+LearningMinutesDayFormSet = formset_factory(LearningMinutesDayForm, extra=1)
 
 # Create your views here.
 def home(request):
@@ -10,7 +13,33 @@ def home(request):
 
 
 def add_subject(request):
-    return render(request, 'polihack_site/add_subject.html')
+    if request.method == 'POST':
+        subject_form = SubjectForm(request.POST, request.FILES)
+        minutes_formset = LearningMinutesDayFormSet(request.POST)
+
+        if subject_form.is_valid() and minutes_formset.is_valid():
+            subject = subject_form.save(commit=False)
+            subject.user = request.user  # Assuming you have a user associated with the subject
+            subject.save()
+
+            for form in minutes_formset:
+                if form.cleaned_data:
+                    date = form.cleaned_data['date']
+                    minutes = form.cleaned_data['minutes']
+                    LearningMinutesDay.objects.create(subject=subject, date=date, minutes=minutes)
+
+            return redirect('polihack_site/add_subject')  # Use the correct namespace and URL name
+
+    else:
+        subject_form = SubjectForm()
+        minutes_formset = LearningMinutesDayFormSet()
+
+    context = {
+        'subject_form': subject_form,
+        'minutes_formset': minutes_formset,
+    }
+
+    return render(request, 'polihack_site/add_subject.html', context)
 
 
 def create_learning_plan(request):
