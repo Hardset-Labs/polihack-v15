@@ -11,11 +11,15 @@ def transcribe_audio(audio_file_path):
     audio_file.close()
     return transcription.text
 
+
 def write_transcription_to_file(audio_file_path, output_file_path):
+    if not audio_file_path.endswith(".mp3"):
+        raise ValueError("Input file must be an mp3 file.")
     transcription = transcribe_audio(audio_file_path)
     with open(output_file_path, "w") as output_file:
         output_file.write(transcription)
     return transcription
+
 
 if __name__ == '__main__':
     print(write_transcription_to_file('output.mp3', 'transcription.txt'))  # Output: "Hello, how are you?"
