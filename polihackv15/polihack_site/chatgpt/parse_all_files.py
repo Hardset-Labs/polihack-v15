@@ -1,3 +1,5 @@
+import os
+
 import pdf_parser as pp
 import speech_to_text.speech_to_text as stt
 import speech_to_text.convert_to_mp3 as ctm
@@ -8,7 +10,10 @@ def parse_all_available_files(videos, pdfs, output_folder):
     for pdf in pdfs:
         materials_text += pp.extract_text_from_pdf(pdf)
     for video in videos:
-        materials_text += stt.write_transcription_to_file(video, f'{output_folder}')
+        # create folder if it doesn't exist
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+        materials_text += stt.transcribe_audio(video)
     return materials_text
 
 
