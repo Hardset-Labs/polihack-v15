@@ -1,5 +1,26 @@
-<!-- extend base.html
 {% extends "polihack_site/base.html" %}
 {% block content %}
-    
+    <!-- Learn button -->
+    <div class="text-center mt-4">
+        <button type="button" class="btn btn-primary">Learn Now!</button>
+    </div>
+
+    <!-- Today's tasks -->
+    <div class="mt-4">
+        <h2>Today's Tasks</h2>
+        <!-- Dummy entry 1 -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Dummy Task 1</h5>
+                <p class="card-text">This is a dummy task for testing purposes.</p>
+            </div>
+        </div>
+        <!-- Dummy entry 2 -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Dummy Task 2</h5>
+                <p class="card-text">This is another dummy task for testing purposes.</p>
+            </div>
+        </div>
+    </div>
 {% endblock %}
