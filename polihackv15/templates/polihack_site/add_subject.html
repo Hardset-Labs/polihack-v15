@@ -22,12 +22,14 @@
             <div class="dropzone" id="video-dropzone">
                 Drag & Drop Video Here
             </div>
+            <input type="file" style="display: none;" id="id_video_files" />
             <div id="video-file-list"></div>
 
             <h3>Drag & Drop Document</h3>
             <div class="dropzone" id="document-dropzone">
                 Drag & Drop Document Here
             </div>
+            <input type="file" style="display: none;" id="id_pdf_files" />
             <div id="document-file-list"></div>
 
             <h3>Planning Schedule</h3>
@@ -66,6 +68,12 @@
 
     .formset-row {
         margin-bottom: 10px;
+    }
+    .error-message {
+        color: red;
+        font-weight: bold;
+        font-style: italic;
+        /* Add more styles as needed */
     }
 </style>
 
@@ -108,35 +116,64 @@
             function handleVideoDrop(e) {
                 var dt = e.dataTransfer;
                 var files = dt.files;
-
-                handleFiles(files, 'video');
+                var fileType = getFileType(files[0]);
+                console.log(fileType);
+                handleVideoFiles(files, fileType);
             }
-
+            
             function handleDocumentDrop(e) {
                 var dt = e.dataTransfer;
                 var files = dt.files;
-
-                handleFiles(files, 'document');
+                var fileType = getFileType(files[0]);
+                console.log(fileType);
+                handleDocumentFiles(files, fileType);
             }
-
-            function handleFiles(files, type) {
-                if (type === 'video') {
+            
+            function getFileType(file) {
+                return file.type;
+            }
+            
+            function handleVideoFiles(files, type) {
+                if (type === 'video/mp4') {
                     var videoInput = document.getElementById('id_video_files');
                     videoInput.files = files;
-                    displayFile('video-file-list', files[0].name, 'video');
-                } else if (type === 'document') {
-                    var documentInput = document.getElementById('id_pdf_files');
-                    documentInput.files = files;
-                    displayFile('document-file-list', files[0].name, 'document');
+                    console.log(files[0].name);
+                    displayFile('video-file-list', files[0].name, type);
+                } else {
+                    console.log('error');
+                    displayFile('video-file-list', files[0].name, 'error');
                 }
             }
 
+            function handleDocumentFiles(files, type) {
+                if (type === 'text/plain' || type === 'application/pdf' || type === 'application/msword' || type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                    var documentInput = document.getElementById('id_pdf_files');
+                    documentInput.files = files;
+                    console.log(files[0].name);
+                    displayFile('document-file-list', files[0].name, type);
+                } else {
+                    console.log('error');
+                    displayFile('document-file-list', files[0].name, 'error');
+                }
+            }
+            
             function displayFile(target, fileName, type) {
                 var fileList = document.getElementById(target);
                 var fileItem = document.createElement('div');
                 fileItem.className = 'file-item';
-                fileItem.innerHTML = fileName + ' <button class="btn btn-danger btn-sm" onclick="removeFile(this, \'' + type + '\')">Delete</button>';
-                fileList.appendChild(fileItem);
+            
+                if (target === 'video-file-list' && type === 'video') {
+                    console.log('video');
+                    fileItem.innerHTML = fileName + ' <button class="btn btn-danger btn-sm" onclick="removeFile(this, \'' + type + '\')">Delete</button>';
+                    fileList.appendChild(fileItem);
+                } else if (target === 'document-file-list' && (type === 'text/plain' || type === 'application/pdf' || type === 'application/msword' || type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+                    console.log('document');
+                    fileItem.innerHTML = fileName + ' <button class="btn btn-danger btn-sm" onclick="removeFile(this, \'' + type + '\')">Delete</button>';
+                    fileList.appendChild(fileItem);
+                } else if (type === 'error'){
+                    fileItem.innerHTML = '<p class="error-message">File type unsupported</p>';
+                    fileList.appendChild(fileItem);                
+                }
             }
 
             function removeFile(btn, type) {
