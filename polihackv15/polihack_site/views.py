@@ -49,6 +49,8 @@ def create_learning_plan(request):
 def subjects(request):
     return render(request, 'polihack_site/subjects.html')
 
+def study_plan(request):
+    return render(request, 'polihack_site/study_plan.html')
 
 def get_user_data(request):
     # Create a new user (you can customize this as needed)
