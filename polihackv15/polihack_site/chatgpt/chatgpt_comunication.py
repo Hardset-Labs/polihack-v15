@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 
-def chat_with_gpt(text):
+def chat_with_gpt(text, client=None):
     client = OpenAI(api_key='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')
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
