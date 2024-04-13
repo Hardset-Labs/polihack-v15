@@ -85,7 +85,7 @@ def return_user(request):
     if 'user' not in request.session:
         # Generate a unique username using UUID
         username = str(uuid.uuid4())[:8]  # Generate a UUID and take the first 8 characters as the username
-        return_user(request, username)
+        request.session['user'] = username
         user_data = UserData(user=username)
         user_data.save()
     else:
