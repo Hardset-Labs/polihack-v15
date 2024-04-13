@@ -15,6 +15,10 @@ def create_learning_plan(request):
     return JsonResponse({'status': 'success'})
 
 
+def subjects(request):
+    return render(request, 'polihack_site/subjects.html')
+
+
 def get_user_data(request):
     # Create a new user (you can customize this as needed)
     
