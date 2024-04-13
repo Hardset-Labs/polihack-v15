@@ -13,8 +13,8 @@ class UserData(models.Model):
     class Meta: 
         app_label = 'polihack_site'
     
-    def __init__(self, user, lives=3, streak=0, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def _init_(self, user, lives=3, streak=0, *args, **kwargs):
+        super()._init_(*args, **kwargs)
         self.user = user
         self.lives = lives
         self.streak = streak
@@ -22,7 +22,7 @@ class UserData(models.Model):
 
 class Subject(models.Model):
     name = models.CharField(max_length=100)
-    user = models.ForeignKey(UserData, on_delete=models.CASCADE)
+    #user = models.ForeignKey(UserData, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     pdf_files = models.FileField(upload_to='pdf_files/', null=True, blank=True)
@@ -33,7 +33,7 @@ class Subject(models.Model):
     generated_at = models.DateTimeField(null=True, blank=True)
     progress = models.IntegerField(default=0)
 
-    def __str__(self):
+    def _str_(self):
         return self.name
 
 
@@ -42,7 +42,7 @@ class LearningMinutesDay(models.Model):
     date = models.DateField()
     minutes = models.IntegerField()
 
-    def __str__(self):
+    def _str_(self):
         return self.subject.name + " " + str(self.date) + " " + str(self.minutes) + " minutes"
 
 
@@ -56,7 +56,7 @@ class Chapter(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
+    def _str_(self):
         return self.name
 
 
@@ -74,6 +74,5 @@ class Question(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
+    def _str_(self):
         return self.question
-

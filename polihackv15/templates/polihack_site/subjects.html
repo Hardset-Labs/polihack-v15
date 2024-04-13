@@ -1,4 +1,103 @@
 {% extends "polihack_site/base.html" %}
 {% block content %}
-    
+<style>
+    .progress-bar-container {
+        width: 200px; /* Adjust width as needed */
+        height: 20px; /* Adjust height as needed */
+        background-color: #f0f0f0; /* Background color */
+        border-radius: 10px; /* Rounded corners */
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background-color: #007bff; /* Progress bar color */
+    }
+
+    .table {
+        border-collapse: separate; /* Separate border spacing for columns */
+        border-spacing: 0 10px; /* Adjust vertical spacing between rows */
+        width: 100%; /* Full width of container */
+    }
+
+    .table th,
+    .table td {
+        text-align: center; /* Center align content */
+        vertical-align: middle; /* Center vertically */
+        padding: 8px; /* Adjust padding as needed */
+        border: none; /* Remove default cell borders */
+        transition: background-color 0.3s ease; /* Transition for hover effect */
+    }
+
+    .table th {
+        background-color: #007bff; /* Header background color */
+        color: white; /* Header text color */
+    }
+
+    .table tbody tr:nth-child(even) {
+        background-color: #f8f9fa; /* Even row background color */
+    }
+
+    .table tbody tr:nth-child(odd) {
+        background-color: #e9ecef; /* Odd row background color */
+    }
+
+    .table tbody tr:last-child {
+        border-bottom: none; /* Remove bottom border from last row */
+    }
+
+    .table th:hover,
+    .table td:hover {
+    background-color: #cce5ff; /* Change background color on hover */
+    }
+
+    h2 {
+        margin-top: 50px;
+    }
+
+    /* Add margin between title and table */
+    .table {
+        margin-top: 50px;
+    }
+
+</style>
+
+
+<div class="container">
+    <h2 style="margin-top: 40px">Subjects</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Subject Name</th>
+                <th scope="col">Deadline</th>
+                <th scope="col">Progress</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subject in subjects %}
+            <tr>
+                <td>{{ subject.name }}</td>
+                <td>{{ subject.end_date }}</td>
+                <td>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: {{ subject.progress }}%;"></div>
+                    </div>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-info btn-sm">Details</button>
+                    <button type="button" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash-alt"></i> <!-- Trash can icon -->
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No subjects available</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="button" class="btn btn-primary mt-3">Add Subject</button>
+</div>
 {% endblock %}
