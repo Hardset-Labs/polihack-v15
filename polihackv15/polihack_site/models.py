@@ -36,6 +36,9 @@ class Subject(models.Model):
     def _str_(self):
         return self.name
 
+    def return_details(self):
+        return "Start date: "+str(self.start_date)+" End date: "+str(self.end_date)+" Progress: "+str(self.progress)
+
 
 class LearningMinutesDay(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)

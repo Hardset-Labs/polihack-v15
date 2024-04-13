@@ -13,6 +13,7 @@ LearningMinutesDayFormSet = formset_factory(LearningMinutesDayForm, extra=1)
 # Create your views here.
 def home(request):
     subject_today = get_today_subjects(request)
+    print(subject_today)
 
     return render(request, 'polihack_site/home.html',
                   {'user_data': return_user(request), 'subject_today': subject_today})
@@ -30,6 +31,8 @@ def get_today_subjects(request):
     for subject in subjects:
         learning_minutes = LearningMinutesDay.objects.all().filter(subject=subject, date=today)
         subject_today.append((subject, learning_minutes))
+    # remove the subjects that have no learning minutes
+    subject_today = [subject for subject in subject_today if subject[1]]
     return subject_today
 
 
