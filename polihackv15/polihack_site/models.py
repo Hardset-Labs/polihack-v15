@@ -22,7 +22,7 @@ class UserData(models.Model):
 
 class Subject(models.Model):
     name = models.CharField(max_length=100)
-    #user = models.ForeignKey(UserData, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserData, on_delete=models.CASCADE, default="1")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     pdf_files = models.FileField(upload_to='pdf_files/', null=True, blank=True)
@@ -35,6 +35,9 @@ class Subject(models.Model):
 
     def _str_(self):
         return self.name
+
+    def return_details(self):
+        return "Start date: "+str(self.start_date)+" End date: "+str(self.end_date)+" Progress: "+str(self.progress)
 
 
 class LearningMinutesDay(models.Model):

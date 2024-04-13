@@ -4,6 +4,10 @@ from . import views
 urlpatterns = [
     path("", views.home, name="home"),  # Default home URL
     path("home/", views.home, name="home"),
-    path("subjects/", views.subjects, name="subjects"),
-    path('add_subject/', views.add_subject, name='add_subject')
+    path("subjects/", views.get_subjects, name="subjects"),
+    path("study_plan/", views.study_plan, name="study_plan"),
+    path('add_subject/', views.add_subject, name='add_subject'),
+    path('edit_subject/<int:item_id>/', views.edit_subject, name='edit_subject'),
+    path('learn_now/', views.learn_now, name='learn_now'),
+    path('learn_subject/<int:subject_id>/', views.learn_subject, name='learn_subject')
 ]# Default home URL

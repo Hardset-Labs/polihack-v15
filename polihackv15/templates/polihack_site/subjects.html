@@ -35,7 +35,7 @@
     .table th,
     .table td {
         vertical-align: middle; /* Center vertically */
-        padding: 8px; /* Adjust padding as needed */
+        padding: 15px 0; /* Adjust padding as needed */
         border: none; /* Remove default cell borders */
     }
 
@@ -109,7 +109,7 @@
                     </div>
                 </td>
                 <td>
-                    <button type="button" class="btn btn-info btn-sm">Details</button>
+                    <a href="{% url 'study_plan' %}?subject_name={{ subject.name }}" class="btn btn-info btn-sm" role="button">Details</a>
                     <button type="button" class="btn btn-danger btn-sm">
                         <i class="fas fa-trash-alt"></i> <!-- Trash can icon -->
                     </button>

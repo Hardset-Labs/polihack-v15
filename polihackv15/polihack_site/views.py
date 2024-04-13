@@ -1,16 +1,39 @@
-from datetime import date
+import uuid
+
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import formset_factory
 from .forms import SubjectForm, LearningMinutesDayForm
-from .models import UserData, Subject, LearningMinutesDay
-
+from .models import UserData, Subject, LearningMinutesDay, Chapter, Question
+from datetime import date
 
 LearningMinutesDayFormSet = formset_factory(LearningMinutesDayForm, extra=1)
 
+
 # Create your views here.
 def home(request):
-    return render(request, 'polihack_site/home.html')
+    subject_today = get_today_subjects(request)
+    print(subject_today)
+
+    return render(request, 'polihack_site/home.html',
+                  {'user_data': return_user(request), 'subject_today': subject_today})
+
+
+def get_today_subjects(request):
+    # get the user data
+    user_id = return_user(request).id
+    # get the subjects for the user
+    subjects = Subject.objects.all().filter(user=user_id)
+    # get the current date
+    today = date.today()
+    # get the learning minutes for the day for each subject and pair them with the subject
+    subject_today = []
+    for subject in subjects:
+        learning_minutes = LearningMinutesDay.objects.all().filter(subject=subject, date=today)
+        subject_today.append((subject, learning_minutes))
+    # remove the subjects that have no learning minutes
+    subject_today = [subject for subject in subject_today if subject[1]]
+    return subject_today
 
 
 def add_subject(request):
@@ -47,43 +70,71 @@ def create_learning_plan(request):
     return JsonResponse({'status': 'success'})
 
 
-def subjects(request):
-    return render(request, 'polihack_site/subjects.html')
+def study_plan(request, subject_id):
+    return render(request, 'polihack_site/study_plan.html',
+                  {'user_data': return_user(request), 'subject': Subject.objects.get(id=subject_id),
+                   'chapters': Chapter.objects.all().filter(subject=subject_id)})
 
 
 def get_user_data(request):
-    # Create a new user (you can customize this as needed)
-    
-    # Create a new UserData object with hardcoded values
-    user_data = UserData(user="Mirel", lives=3, streak=0)
-    
-    # Pass the user_data to the template
-    return render(request, 'polihack_site/base.html', {'user_data': user_data})
+    # Create a new user based on session
+    return render(request, 'polihack_site/base.html', {'user_data': return_user(request)})
 
-def subjects(request):
+
+def return_user(request):
+    if 'user' not in request.session:
+        # Generate a unique username using UUID
+        username = str(uuid.uuid4())[:8]  # Generate a UUID and take the first 8 characters as the username
+        return_user(request, username)
+        user_data = UserData(user=username)
+        user_data.save()
+    else:
+        user_data = UserData.objects.get(user=request.session['user'])
+    return user_data
+
+
+def get_subjects(request):
     # Create some mock subjects
-    subjects_data = [
-        {"name": "Math", "start_date": date(2024, 4, 1), "end_date": date(2024, 4, 30), "pdf_files": "math_notes.pdf", "video_files": "math_video.mp4", "progress": 30},
-        {"name": "History", "start_date": date(2024, 4, 15), "end_date": date(2024, 5, 15), "pdf_files": "history_notes.pdf", "video_files": "history_video.mp4", "progress": 50},
-        {"name": "Science", "start_date": date(2024, 4, 20), "end_date": date(2024, 5, 20), "pdf_files": "science_notes.pdf", "video_files": "science_video.mp4", "progress": 20},
-        {"name": "English", "start_date": date(2024, 4, 10), "end_date": date(2024, 5, 10), "pdf_files": "english_notes.pdf", "video_files": "english_video.mp4", "progress": 40},
-        {"name": "Geography", "start_date": date(2024, 4, 5), "end_date": date(2024, 5, 5), "pdf_files": "geography_notes.pdf", "video_files": "geography_video.mp4", "progress": 60},
-        {"name": "Biology", "start_date": date(2024, 4, 25), "end_date": date(2024, 5, 25), "pdf_files": "biology_notes.pdf", "video_files": "biology_video.mp4", "progress": 70},
-        {"name": "Physics", "start_date": date(2024, 4, 12), "end_date": date(2024, 5, 12), "pdf_files": "physics_notes.pdf", "video_files": "physics_video.mp4", "progress": 80},
-    ]
+    user_id = return_user(request).id
+    subjects = Subject.objects.all().filter(user=user_id)
+    if request.user.is_superuser:
+        subjects = Subject.objects.all()
+    return render(request, 'polihack_site/subjects.html', {'subjects': subjects, 'user_data': return_user(request)})
 
-    # Create Subject objects from the mock data
-    subjects = []
-    for subject_data in subjects_data:
-        subject = Subject.objects.create(
-            name=subject_data["name"],
-            start_date=subject_data["start_date"],
-            end_date=subject_data["end_date"],
-            pdf_files=subject_data["pdf_files"],
-            video_files=subject_data["video_files"],
-            progress=subject_data["progress"],
-            #user=request.user  # Assuming you have a logged-in user and want to assign the subjects to this user
-        )
-        subjects.append(subject)
 
-    return render(request, 'polihack_site/subjects.html', {'subjects': subjects})
+def edit_subject(request, subject_id):
+    # pull by id the subject and give it to the template
+    subject = get_object_or_404(Subject, id=subject_id)
+    return render(request, 'polihack_site/add_subject.html', {'subject': subject})
+
+
+def delete_subject(request, subject_id):
+    # delete the subject
+    subject = get_object_or_404(Subject, id=subject_id)
+    subject.delete()
+    return redirect('polihack_site/subjects')
+
+
+def learn_now(request):
+    # get the first subject
+    subject_today = get_today_subjects(request)[0]
+    # get the first unlearned chapter
+    return learn_subject(request, subject_today[0].id)
+
+
+def learn_subject(request, subject_id):
+    # get the subject
+    subject = Subject.objects.get(id=subject_id)
+    print(subject.name)
+    # get the chapters
+    chapters = Chapter.objects.all().filter(subject=subject_id)
+    print(chapters)
+    # get the first unlearned chapter
+    for chapter in chapters:
+        if chapter.progress != 100:
+            # get the first question
+            first_question = Question.objects.all().filter(chapter=chapter)[0]
+            return render(request, 'polihack_site/learn.html',
+                          {'user_data': return_user(request), 'subject': subject, 'chapter': chapter,
+                           'question': first_question, 'subject_id': subject_id})
+    return redirect('home')

@@ -2,25 +2,33 @@
 {% block content %}
     <!-- Learn button -->
     <div class="text-center mt-4">
-        <button type="button" class="btn btn-primary">Learn Now!</button>
+        <a href="{% url 'learn_now' %}"><button type="button" class="btn btn-primary">Learn Now!</button></a>
     </div>
 
     <!-- Today's tasks -->
     <div class="mt-4">
         <h2>Today's Tasks</h2>
         <!-- Dummy entry 1 -->
+        {% for subject, learning_minutes in subject_today %}
         <div class="card mt-3">
             <div class="card-body">
-                <h5 class="card-title">Dummy Task 1</h5>
-                <p class="card-text">This is a dummy task for testing purposes.</p>
+                <h5 class="card-title">{{ subject.name }}</h5>
+                <p class="card-text">{{ subject.return_details }}</p>
+                <!-- Access data from the associated queryset -->
+                {% for learning_minute in learning_minutes %}
+                    <p>{{ learning_minute.minutes }} minutes left for today.</p>
+                    <!-- Replace 'field_name' with the actual field you want to display -->
+                {% endfor %}
             </div>
         </div>
-        <!-- Dummy entry 2 -->
+        {% endfor %}
+
+        <!-- Dummy entry 2
         <div class="card mt-3">
             <div class="card-body">
                 <h5 class="card-title">Dummy Task 2</h5>
                 <p class="card-text">This is another dummy task for testing purposes.</p>
             </div>
-        </div>
+        </div> -->
     </div>
 {% endblock %}
