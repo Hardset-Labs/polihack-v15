@@ -10,6 +10,14 @@ class UserData(models.Model):
     streak = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    class Meta: 
+        app_label = 'polihack_site'
+    
+    def __init__(self, user, lives=3, streak=0, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+        self.lives = lives
+        self.streak = streak
 
 
 class Subject(models.Model):
