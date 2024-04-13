@@ -1,12 +1,24 @@
 {% extends "polihack_site/base.html" %}
 {% block content %}
 <style>
+    @keyframes bounce {
+        0% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+        100% {
+            transform: translateY(0);
+        }
+    }
     .progress-bar-container {
         width: 200px; /* Adjust width as needed */
         height: 20px; /* Adjust height as needed */
         background-color: #f0f0f0; /* Background color */
         border-radius: 10px; /* Rounded corners */
         overflow: hidden;
+        display: flex;
     }
 
     .progress-bar-fill {
@@ -22,11 +34,9 @@
 
     .table th,
     .table td {
-        text-align: center; /* Center align content */
         vertical-align: middle; /* Center vertically */
         padding: 8px; /* Adjust padding as needed */
         border: none; /* Remove default cell borders */
-        transition: background-color 0.3s ease; /* Transition for hover effect */
     }
 
     .table th {
@@ -46,25 +56,39 @@
         border-bottom: none; /* Remove bottom border from last row */
     }
 
-    .table th:hover,
-    .table td:hover {
-    background-color: #cce5ff; /* Change background color on hover */
-    }
-
-    h2 {
-        margin-top: 50px;
-    }
-
     /* Add margin between title and table */
     .table {
-        margin-top: 50px;
+        margin-top: 20px;
+    }
+    h2 {
+        animation: bounce 1s infinite;
+        font-size: 36px; /* Increase font size */
+        color: royalblue; /* Change text color */
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Add text shadow */
+        margin-top: 50px; /* Add top margin */
+        padding: 20px; /* Add padding */
+        border-radius: 10px; /* Add border radius */
+        background-color: #f0f0f0; /* Add background color */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add box shadow */
+        transition: transform 0.3s ease; /* Add smooth transition */
     }
 
+    /* On hover, scale the h2 element */
+    h2:hover {
+        transform: scale(1.05);
+    }
+
+    /* Make the "Add Subject" button bigger */
+    .btn-primary {
+        font-size: 30px;
+        padding: 10px 20px;
+        border-radius: 10px;
+    }
 </style>
 
 
 <div class="container">
-    <h2 style="margin-top: 40px">Subjects</h2>
+    <h2>Subjects</h2>
     <table class="table">
         <thead>
             <tr>
@@ -79,7 +103,7 @@
             <tr>
                 <td>{{ subject.name }}</td>
                 <td>{{ subject.end_date }}</td>
-                <td>
+                <td style="justify-content : center">
                     <div class="progress-bar-container">
                         <div class="progress-bar-fill" style="width: {{ subject.progress }}%;"></div>
                     </div>
