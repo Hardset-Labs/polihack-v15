@@ -56,7 +56,7 @@ Learn
 
             $.ajax({
                 type: "POST",
-                url: "{% url 'learn' %}",
+                url: "{% url 'learn_now' %}",
                 data: $('#question-form').serialize(),
                 success: function(response) {
                     if (response.is_correct) {

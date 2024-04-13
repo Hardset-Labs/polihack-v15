@@ -122,8 +122,10 @@ def learn_now(request):
 def learn_subject(request, subject_id):
     # get the subject
     subject = Subject.objects.get(id=subject_id)
+    print(subject.name)
     # get the chapters
-    chapters = Chapter.objects.all().filter(subject=subject)
+    chapters = Chapter.objects.all().filter(subject=subject_id)
+    print(chapters)
     # get the first unlearned chapter
     for chapter in chapters:
         if chapter.progress != 100:
@@ -131,5 +133,5 @@ def learn_subject(request, subject_id):
             first_question = Question.objects.all().filter(chapter=chapter)[0]
             return render(request, 'polihack_site/learn.html',
                           {'user_data': return_user(request), 'subject': subject, 'chapter': chapter,
-                           'question': first_question})
-    return redirect('polihack_site/home')
+                           'question': first_question, 'subject_id': subject_id})
+    return redirect('home')
