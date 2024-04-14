@@ -155,7 +155,7 @@ def delete_subject(request, subject_id):
     return redirect('subjects')
 
 
-def learn_now(request):
+def learn_now(request, last_question_id=None):
     # get the first subject
     if request.method == 'POST':
         # Extract submitted answer from POST data
@@ -181,10 +181,10 @@ def learn_now(request):
     if not subject_today:
         return redirect('home')
     # get the first unlearned chapter
-    return learn_subject(request, subject_today[0].id)
+    return learn_subject(request, subject_today[0].id, last_question_id)
 
 
-def learn_subject(request, subject_id):
+def learn_subject(request, subject_id, last_question_id=None):
     # get the subject
     subject = Subject.objects.get(id=subject_id)
     print(subject.name)
@@ -192,13 +192,24 @@ def learn_subject(request, subject_id):
     chapters = Chapter.objects.all().filter(subject=subject_id)
     print(chapters)
     # get the first unlearned chapter
-    for chapter in chapters:
-        if chapter.progress != 100:
-            # get the first question
-            first_question = Question.objects.all().filter(chapter=chapter)[0]
-            return render(request, 'polihack_site/learn.html',
-                          {'user_data': return_user(request), 'subject': subject, 'chapter': chapter,
-                           'question': first_question, 'subject_id': subject_id})
+    try:
+        for chapter in chapters:
+            if chapter.progress != 100:
+                # get the first question
+                if last_question_id is None:
+                    first_question = Question.objects.all().filter(chapter=chapter)[0]
+                else:
+                    last_question = Question.objects.get(id=last_question_id)
+                    questions = Question.objects.all().filter(chapter=chapter)
+                    for i in range(len(questions)):
+                        if questions[i] == last_question:
+                            first_question = questions[i+1]
+                            break
+                return render(request, 'polihack_site/learn.html',
+                              {'user_data': return_user(request), 'subject': subject, 'chapter': chapter,
+                               'question': first_question, 'subject_id': subject_id})
+    except:
+        pass
     return redirect('home')
 
 def save_subject(request):
