@@ -212,6 +212,7 @@ def learn_subject(request, subject_id, last_question_id=None):
         pass
     return redirect('home')
 
+  
 def save_subject(request):
     if request.method == "POST":
         # Process form data and update or create the subject
@@ -244,5 +245,9 @@ def save_subject(request):
         print("Method Not Allowed:", request.method)
         return HttpResponse("Method Not Allowed", status=404)
 
+
+
+def loading_page(request):
+    return render(request, 'loading_page.html')
 
 

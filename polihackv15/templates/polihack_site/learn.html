@@ -60,11 +60,13 @@ Learn
                 url: "{% url 'learn_now' %}",
                 data: data_to_send,
                 success: function(response) {
+                    console.log(response);
                     if (response.is_correct) {
                         $('#feedback').html('<div class="alert alert-success" role="alert">Correct! ' + response.explanation + '</div>');
                         $('#next-btn').removeClass('d-none'); // Show the Next Question button
                         $('#submit-btn').addClass('d-none'); // Hide the Submit button
                     } else {
+                        console.log(response.explanation);
                         $('#feedback').html('<div class="alert alert-danger" role="alert">Incorrect! ' + response.explanation + '</div>');
                     }
                 },
