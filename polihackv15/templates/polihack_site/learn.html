@@ -59,6 +59,7 @@ Learn
                 url: "{% url 'learn_now' %}",
                 data: $('#question-form').serialize(),
                 success: function(response) {
+                    console.log(response);
                     if (response.is_correct) {
                         $('#feedback').html('<div class="alert alert-success" role="alert">Correct! ' + response.explanation + '</div>');
                         $('#next-btn').removeClass('d-none'); // Show the Next Question button

@@ -150,3 +150,4 @@ def learn_subject(request, subject_id):
 
 def loading_page(request):
     return render(request, 'loading_page.html')
+
