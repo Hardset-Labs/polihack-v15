@@ -117,10 +117,11 @@
                     if (response.ok) {
                         // Subject saved successfully, you can redirect or perform other actions
                         console.log("Subject saved successfully");
-                        window.location.href = "/"; // Redirect to home page
+                        window.location.href = "{% url 'subjects' %}"; // Redirect to home page
                     } else {
                         // Handle error response
-                        console.error("Failed to save subject");
+                        console.error("Failed to save subject. "+ response.statusText);
+                        //window.location.href = "{% url 'subjects' %}"; // Redirect to home page
                     }
                 })
                 .catch(error => {

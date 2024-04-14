@@ -79,9 +79,10 @@ def add_subject(request, subject_id=None):
             date = subject.start_date + timedelta(days=i)
             if not any(minute.date == date for minute in minutes):
                 minutes.append(LearningMinutesDay(subject=subject, date=date, minutes=20))
-        minutes_formset = LearningMinutesDayFormSet(initial=[{'date': minute.date, 'minutes': minute.minutes} for minute in minutes])
+        minutes_formset = LearningMinutesDayFormSet(
+            initial=[{'date': minute.date, 'minutes': minute.minutes} for minute in minutes])
         # add all the minutes to the database
-        #print(minutes_formset)
+        # print(minutes_formset)
         minutes_formset.extra = 0
         for minute in minutes:
             minute.save()
@@ -93,7 +94,6 @@ def add_subject(request, subject_id=None):
         subject.start_date = datetime.today()
         subject.end_date = datetime.today() + timedelta(days=1)
         subject.save()
-
 
     context = {
         'subject_form': subject_form,
@@ -196,6 +196,7 @@ def learn_subject(request, subject_id, last_question_id=None):
         for chapter in chapters:
             if chapter.progress != 100:
                 # get the first question
+                first_question = None
                 if last_question_id is None:
                     first_question = Question.objects.all().filter(chapter=chapter)[0]
                 else:
@@ -203,8 +204,11 @@ def learn_subject(request, subject_id, last_question_id=None):
                     questions = Question.objects.all().filter(chapter=chapter)
                     for i in range(len(questions)):
                         if questions[i] == last_question:
-                            first_question = questions[i+1]
+                            first_question = questions[i + 1]
                             break
+                    if first_question is None:
+                        print("No more questions in this chapter")
+                        continue
                 return render(request, 'polihack_site/learn.html',
                               {'user_data': return_user(request), 'subject': subject, 'chapter': chapter,
                                'question': first_question, 'subject_id': subject_id})
@@ -212,7 +216,7 @@ def learn_subject(request, subject_id, last_question_id=None):
         pass
     return redirect('home')
 
-  
+
 def save_subject(request):
     if request.method == "POST":
         # Process form data and update or create the subject
@@ -220,7 +224,6 @@ def save_subject(request):
         name = request.POST.get("name")
         start_date = request.POST.get("start_date")
         end_date = request.POST.get("end_date")
-
 
         try:
             # Try to get the existing subject
@@ -231,28 +234,24 @@ def save_subject(request):
             subject = Subject.objects.create(id=subject_id, name=name, start_date=start_date, end_date=end_date)
             print(f"New subject created with ID: {subject_id}")
 
-        # Update the subject's name and dates
         subject.name = name
-        # subject.start_date = datetime.today()
-        # subject.end_date = datetime.today() + timedelta(days=2)
         subject.save()
         print(f"Subject saved successfully: {subject}")
 
         # Redirect to subjects page or any other URL
-        return redirect("subjects")
+        return HttpResponse("Subject saved successfully", status=200)
     else:
         # Return a 404 error if the request method is not POST
         print("Method Not Allowed:", request.method)
         return HttpResponse("Method Not Allowed", status=404)
 
 
-
 def loading_page(request):
     return render(request, 'loading_page.html')
+
 
 def study_plan(request):
     subject_name = request.GET.get('subject_name')
     subject = get_object_or_404(Subject, name=subject_name)
     chapters = Chapter.objects.filter(subject=subject)  # Retrieve chapters related to the subject
     return render(request, 'polihack_site/study_plan.html', {'subject': subject, 'chapters': chapters})
-
