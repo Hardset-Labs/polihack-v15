@@ -8,12 +8,12 @@
 <div class="row justify-content-center mt-5">
     <div class="col-md-6">
         <h2>Add Subject</h2>
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" id="subjectForm">
             {% csrf_token %}
 
             <div class="form-group">
                 <label for="id_name">Name:</label>
-                <input type="text" class="form-control" id="id_name" name="name">
+                <input type="text" class="form-control" id="id_name" name="name" value="{{ subject.name }}">
             </div>
 
             {{ form.as_p }}
@@ -22,34 +22,50 @@
             <div class="dropzone" id="video-dropzone">
                 Drag & Drop Video Here
             </div>
-            <input type="file" style="display: none;" id="id_video_files" />
+            <input type="file" style="display: none;" id="id_video_files" name="video_files" multiple>
             <div id="video-file-list"></div>
 
             <h3>Drag & Drop Document</h3>
             <div class="dropzone" id="document-dropzone">
                 Drag & Drop Document Here
             </div>
-            <input type="file" style="display: none;" id="id_pdf_files" />
+            <input type="file" style="display: none;" id="id_pdf_files" name="pdf_files" multiple>
             <div id="document-file-list"></div>
 
             <h3>Planning Schedule</h3>
+            <div id="dateFormInterval">
+                <form id="dateFormInterval">
+                        <label for="start_date">Start date:</label>
+                        <!-- Display subject start date -->
+                        <input type="date" class="form-control" id="id_start_date" name="start_date" value="{{ subject.start_date|date:'Y-m-d' }}">
+                        <label for="end_date">End date:</label>
+                        <!-- Display subject end date -->
+                        <input type="date" class="form-control" id="id_end_date" name="end_date" value="{{ subject.end_date|date:'Y-m-d' }}">
+                </form>
+            </div>
+
             {{ minutes_formset.management_form }}
             <div id="formset">
                 {% for form in minutes_formset %}
-                    <div class="formset-row">
-                        {{ form.date.label_tag }} {{ form.date }} {{ form.minutes.label_tag }} {{ form.minutes }}
-                        <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
-                    </div>
+                    <!-- remove the last element -->
+                    {% if not forloop.last %}
+                        <div class="formset-row">
+                            {{ form.date.label_tag }} {{ form.date }} {{ form.minutes.label_tag }} {{ form.minutes }}
+                            <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
-            <button type="button" class="btn btn-secondary" id="add-form">Add Another Entry</button>
-
-            <button type="submit" class="btn btn-primary">Save</button>
+            <!--<button type="button" class="btn btn-secondary" id="add-form">Add Another Entry</button>-->
+            <button type="button" class="btn btn-primary" id="saveSubjectBtn">Save</button>
         </form>
     </div>
 </div>
 
+
 <style>
+
+
     .dropzone {
         border: 2px dashed #ccc;
         padding: 20px;
@@ -78,6 +94,61 @@
 </style>
 
 <script>
+     document.addEventListener("DOMContentLoaded", function () {
+        const saveSubjectBtn = document.getElementById("saveSubjectBtn");
+
+        saveSubjectBtn.addEventListener("click", function () {
+            // Get the form element
+            const subjectForm = document.getElementById("subjectForm");
+
+            // Check if the form element exists
+            if (subjectForm instanceof HTMLFormElement) {
+                // Serialize form data
+                const formData = new FormData(subjectForm);
+                // Append the subject ID to the form data
+                formData.append("subject_id", "{{ subject.id }}");
+
+                // Send form data via AJAX
+                fetch("/save_subject/", {
+                    method: "POST",
+                    body: formData,
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Subject saved successfully, you can redirect or perform other actions
+                        console.log("Subject saved successfully");
+                        window.location.href = "/"; // Redirect to home page
+                    } else {
+                        // Handle error response
+                        console.error("Failed to save subject");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+            } else {
+                console.error("Form element not found");
+            }
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("dateFormInterval");
+        const startDateInput = document.getElementById("id_start_date");
+        const endDateInput = document.getElementById("id_end_date");
+
+        // Event listener for changes in date inputs
+        form.addEventListener("change", function (event) {
+            if (event.target === startDateInput || event.target === endDateInput) {
+                // Redirect to the desired URL with subject ID
+                // send the dates to the backend
+                const start_date = startDateInput.value;
+                const end_date = endDateInput.value;
+                const subjectId = "{{ subject.id }}";
+                window.location.href = `/edit_subject/${subjectId}`;
+            }
+        });
+    });
     document.addEventListener('DOMContentLoaded', function() {
             var videoDropzone = document.getElementById('video-dropzone');
             var documentDropzone = document.getElementById('document-dropzone');

@@ -53,11 +53,12 @@ Learn
     $(document).ready(function() {
         $('#submit-btn').click(function(e) {
             e.preventDefault();
-
+            let data_to_send = $('#question-form').serialize();
+            data_to_send += '&question_id={{ question.id }}'; // Adding the question ID to the data to send
             $.ajax({
                 type: "POST",
                 url: "{% url 'learn_now' %}",
-                data: $('#question-form').serialize(),
+                data: data_to_send,
                 success: function(response) {
                     console.log(response);
                     if (response.is_correct) {
@@ -76,8 +77,8 @@ Learn
         });
 
         $('#next-btn').click(function() {
-            // Here you can add logic to load the next question or redirect to a new URL
-            location.reload(); // For simplicity, reloading the page to load a new question
+            // redirect to learn_now/ with this question_id
+            window.location.href = "{%  url 'learn_now' question.id %}";
         });
     });
 </script>
