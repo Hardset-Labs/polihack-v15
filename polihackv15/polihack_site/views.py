@@ -28,11 +28,14 @@ def get_today_subjects(request):
     today = date.today()
     # get the learning minutes for the day for each subject and pair them with the subject
     subject_today = []
-    for subject in subjects:
-        learning_minutes = LearningMinutesDay.objects.all().filter(subject=subject, date=today)
-        subject_today.append((subject, learning_minutes))
-    # remove the subjects that have no learning minutes
-    subject_today = [subject for subject in subject_today if subject[1]]
+    try:
+        for subject in subjects:
+            learning_minutes = LearningMinutesDay.objects.all().filter(subject=subject, date=today)
+            subject_today.append((subject, learning_minutes))
+        # remove the subjects that have no learning minutes
+        subject_today = [subject for subject in subject_today if subject[1]]
+    except:
+        pass
     return subject_today
 
 
@@ -110,14 +113,20 @@ def edit_subject(request, subject_id):
 
 def delete_subject(request, subject_id):
     # delete the subject
+    userdata = return_user(request)
     subject = get_object_or_404(Subject, id=subject_id)
     subject.delete()
-    return redirect('polihack_site/subjects')
+    return redirect('subjects')
 
 
 def learn_now(request):
     # get the first subject
-    subject_today = get_today_subjects(request)[0]
+    try:
+        subject_today = get_today_subjects(request)[0]
+    except:
+        return redirect('home')
+    if not subject_today:
+        return redirect('home')
     # get the first unlearned chapter
     return learn_subject(request, subject_today[0].id)
 
