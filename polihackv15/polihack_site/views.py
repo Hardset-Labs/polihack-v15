@@ -1,11 +1,14 @@
 import uuid
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import formset_factory
 from .forms import SubjectForm, LearningMinutesDayForm
 from .models import UserData, Subject, LearningMinutesDay, Chapter, Question
-from datetime import date
+from datetime import date, timedelta, datetime
+from django.shortcuts import redirect
+from django.http import HttpResponse
+from .models import Subject  # Import your Subject model here
 
 LearningMinutesDayFormSet = formset_factory(LearningMinutesDayForm, extra=1)
 
@@ -39,7 +42,7 @@ def get_today_subjects(request):
     return subject_today
 
 
-def add_subject(request):
+def add_subject(request, subject_id=None):
     if request.method == 'POST':
         subject_form = SubjectForm(request.POST, request.FILES)
         minutes_formset = LearningMinutesDayFormSet(request.POST)
@@ -55,15 +58,46 @@ def add_subject(request):
                     minutes = form.cleaned_data['minutes']
                     LearningMinutesDay.objects.create(subject=subject, date=date, minutes=minutes)
 
-            return redirect('polihack_site/add_subject')  # Use the correct namespace and URL name
+            return redirect('add_subject')  # Use the correct namespace and URL name
 
     else:
         subject_form = SubjectForm()
         minutes_formset = LearningMinutesDayFormSet()
 
+    # create a new subject and add it to the database
+    if subject_id:
+        subject = Subject.objects.get(id=subject_id)
+        subject_form = SubjectForm(instance=subject)
+        # get the learning minutes for the subject
+        minutes = LearningMinutesDay.objects.all().filter(subject=subject_id)
+        # remove those that are outside of the start and end date
+        minutes = [minute for minute in minutes if subject.start_date <= minute.date <= subject.end_date]
+        # create new ones for the dates that are missing
+        for i in range((subject.end_date - subject.start_date).days + 1):
+            date = subject.start_date + timedelta(days=i)
+            if not any(minute.date == date for minute in minutes):
+                minutes.append(LearningMinutesDay(subject=subject, date=date, minutes=20))
+        minutes_formset = LearningMinutesDayFormSet(initial=[{'date': minute.date, 'minutes': minute.minutes} for minute in minutes])
+        # add all the minutes to the database
+        #print(minutes_formset)
+        minutes_formset.extra = 0
+        for minute in minutes:
+            minute.save()
+
+
+    else:
+        subject = Subject()
+        subject.user = return_user(request)
+        subject.start_date = datetime.today()
+        subject.end_date = datetime.today() + timedelta(days=1)
+        subject.save()
+
+
     context = {
         'subject_form': subject_form,
         'minutes_formset': minutes_formset,
+        'user_data': return_user(request),
+        'subject': subject,
     }
 
     return render(request, 'polihack_site/add_subject.html', context)
@@ -147,3 +181,29 @@ def learn_subject(request, subject_id):
                           {'user_data': return_user(request), 'subject': subject, 'chapter': chapter,
                            'question': first_question, 'subject_id': subject_id})
     return redirect('home')
+
+def save_subject(request):
+    if request.method == "POST":
+        # Process form data and update or create the subject
+        subject_id = request.POST.get("subject_id")
+        name = request.POST.get("name")
+        start_date = request.POST.get("start_date")
+        end_date = request.POST.get("end_date")
+
+        try:
+            # Try to get the existing subject
+            subject = Subject.objects.get(id=subject_id)
+        except Subject.DoesNotExist:
+            # If the subject does not exist, create a new one
+            subject = Subject.objects.create(id=subject_id, name=name, start_date=start_date, end_date=end_date)
+
+        # Update the subject's name and dates
+        subject.name = name
+        #subject.start_date = datetime.today()
+        #subject.end_date = datetime.today() + timedelta(days=2)
+        subject.save()
+        # Redirect to subjects page or any other URL
+        return redirect("subjects")
+    else:
+        # Return a 404 error if the request method is not POST
+        return HttpResponse("Method Not Allowed", status=404)
