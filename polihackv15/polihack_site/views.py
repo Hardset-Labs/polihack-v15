@@ -151,3 +151,9 @@ def learn_subject(request, subject_id):
 def loading_page(request):
     return render(request, 'loading_page.html')
 
+def study_plan(request):
+    subject_name = request.GET.get('subject_name')
+    subject = get_object_or_404(Subject, name=subject_name)
+    chapters = Chapter.objects.filter(subject=subject)  # Retrieve chapters related to the subject
+    return render(request, 'polihack_site/study_plan.html', {'subject': subject, 'chapters': chapters})
+
