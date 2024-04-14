@@ -1,34 +1,85 @@
 {% extends "polihack_site/base.html" %}
 {% block content %}
-    <!-- Learn button -->
-    <div class="text-center mt-4">
-        <a href="{% url 'learn_now' %}"><button type="button" class="btn btn-primary">Learn Now!</button></a>
-    </div>
+    <style>
+        /* Custom styles */
+        .task-card{
+            box-shadow: 0px 7px 10px rgba(black, 0.5)
+            &:hover
+                transform: translateY(20px)
+                &:before
+                    opacity: 1
+                .info
+                    opacity: 1
+                    transform: translateY(0px)
+            &:before
+                content: ""
+                position: absolute
+                top: 0
+                left: 0
+                display: block
+                width: 100%
+                height: 100%
+                border-radius: 15px
+                background: rgba(black, 0.6)
+                z-index: 2
+                transition: 0.5s
+                opacity: 0
+    }   
 
-    <!-- Today's tasks -->
-    <div class="mt-4">
-        <h2>Today's Tasks</h2>
-        <!-- Dummy entry 1 -->
-        {% for subject, learning_minutes in subject_today %}
-        <div class="card mt-3">
-            <div class="card-body">
-                <h5 class="card-title">{{ subject.name }}</h5>
-                <p class="card-text">{{ subject.return_details }}</p>
-                <!-- Access data from the associated queryset -->
-                {% for learning_minute in learning_minutes %}
-                    <p>{{ learning_minute.minutes }} minutes left for today.</p>
-                    <!-- Replace 'field_name' with the actual field you want to display -->
+    .btn-lg {
+        font-size: 1.25rem; /* Larger font size for the button */
+    }
+
+    /* Keyframes for bounce animation */
+    @keyframes bounce {
+        0% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+        100% {
+            transform: translateY(0);
+        }
+    }
+
+    /* Apply bounce animation to h2 */
+    h2 {
+        animation: bounce 1s infinite;
+    }
+
+    /* Apply bounce animation to custom button class */
+    </style>
+    
+    <div class="container" style="padding : 12px 12px">
+        <div class="text-center mt-4">
+            <a href="{% url 'learn_now' %}">
+                <button type="button" class="btn btn-primary btn-lg btn-bounce">Learn Now!</button>
+            </a>
+        </div>
+    
+        <!-- Today's tasks -->  
+        <div class="mt-4">
+            <h2 class="text-center mb-4 btn-bounce">Today's Tasks</h2>
+    
+            <!-- Animated cards -->
+            <div class="row justify-content-center">
+                {% for subject, learning_minutes in subject_today %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card task-card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ subject.name }}</h5>
+                                <p class="card-text">{{ subject.return_details }}</p>
+                                {% for learning_minute in learning_minutes %}
+                                    <p>{{ learning_minute.minutes }} minutes left for today.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
                 {% endfor %}
             </div>
         </div>
-        {% endfor %}
-
-        <!-- Dummy entry 2
-        <div class="card mt-3">
-            <div class="card-body">
-                <h5 class="card-title">Dummy Task 2</h5>
-                <p class="card-text">This is another dummy task for testing purposes.</p>
-            </div>
-        </div> -->
     </div>
 {% endblock %}
+
+

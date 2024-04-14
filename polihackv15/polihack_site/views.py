@@ -138,3 +138,6 @@ def learn_subject(request, subject_id):
                           {'user_data': return_user(request), 'subject': subject, 'chapter': chapter,
                            'question': first_question, 'subject_id': subject_id})
     return redirect('home')
+
+def loading_page(request):
+    return render(request, 'loading_page.html')

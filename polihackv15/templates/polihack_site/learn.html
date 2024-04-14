@@ -64,6 +64,7 @@ Learn
                         $('#next-btn').removeClass('d-none'); // Show the Next Question button
                         $('#submit-btn').addClass('d-none'); // Hide the Submit button
                     } else {
+                        console.log(response.explanation);
                         $('#feedback').html('<div class="alert alert-danger" role="alert">Incorrect! ' + response.explanation + '</div>');
                     }
                 },
