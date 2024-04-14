@@ -110,9 +110,11 @@
                 </td>
                 <td>
                     <a href="{% url 'study_plan' %}?subject_name={{ subject.name }}" class="btn btn-info btn-sm" role="button">Details</a>
-                    <button type="button" class="btn btn-danger btn-sm">
+                    <a href="{% url 'delete_subject' subject_id=subject.id %}">
+                        <button type="button" class="btn btn-danger btn-sm">
                         <i class="fas fa-trash-alt"></i> <!-- Trash can icon -->
                     </button>
+                    </a>
                 </td>
             </tr>
             {% empty %}

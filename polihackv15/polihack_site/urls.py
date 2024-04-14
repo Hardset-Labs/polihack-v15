@@ -9,5 +9,6 @@ urlpatterns = [
     path('add_subject/', views.add_subject, name='add_subject'),
     path('edit_subject/<int:item_id>/', views.edit_subject, name='edit_subject'),
     path('learn_now/', views.learn_now, name='learn_now'),
-    path('learn_subject/<int:subject_id>/', views.learn_subject, name='learn_subject')
+    path('learn_subject/<int:subject_id>/', views.learn_subject, name='learn_subject'),
+    path('delete_subject/<int:subject_id>/', views.delete_subject, name='delete_subject')
 ]# Default home URL
