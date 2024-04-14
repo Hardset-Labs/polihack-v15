@@ -11,6 +11,8 @@ urlpatterns = [
     path('learn_now/', views.learn_now, name='learn_now'),
     path('learn_subject/<int:subject_id>/', views.learn_subject, name='learn_subject'),
     path('delete_subject/<int:subject_id>/', views.delete_subject, name='delete_subject'),
+    path('loading/', views.loading_page, name='loading_page'),
+    path('study_plan/', views.study_plan, name='study_plan')
     path('learn_now/<int:last_question_id>/', views.learn_now, name='learn_now'),
     path('loading/', views.loading_page, name='loading_page')
 ]# Default home URL

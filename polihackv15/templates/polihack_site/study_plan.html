@@ -83,15 +83,15 @@
         <h1 class="text-center">Subject Progress</h1>
 
         <div class="graph">
-            <div class="topic">Topic 1</div>
+            <p>Total Chapters: {{ chapters|length }}</p> <!-- Display total number of chapters -->
+            <!-- Iterate over chapters and generate topic divs and arrows -->
+            {% for chapter in chapters %}
+            <div class="topic">{{ chapter.name }}</div>
+            <!-- Display arrow if it's not the last chapter -->
+            {% if not forloop.last %}
             <div class="arrow"></div>
-            <div class="topic">Topic 2</div>
-            <div class="arrow"></div>
-            <div class="topic">Topic 3</div>
-            <div class="arrow"></div>
-            <div class="topic">Topic 4</div>
-            <div class="arrow"></div>
-            <div class="topic">Topic 5</div>
+            {% endif %}
+            {% endfor %}
         </div>
     </div>
 </body>
