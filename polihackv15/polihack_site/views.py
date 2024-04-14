@@ -3,6 +3,8 @@ import uuid
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import formset_factory
+
+from .chatgpt.chatgpt_answer_parsing import parse_text
 from .forms import SubjectForm, LearningMinutesDayForm
 from .models import UserData, Subject, LearningMinutesDay, Chapter, Question
 from datetime import date, timedelta, datetime
@@ -155,6 +157,23 @@ def delete_subject(request, subject_id):
 
 def learn_now(request):
     # get the first subject
+    if request.method == 'POST':
+        # Extract submitted answer from POST data
+        submitted_answer = request.POST.get('answer')
+        question_id = request.POST.get('question_id')
+        correct_answer = Question.objects.get(id=question_id).correct_answer
+
+        # Compare submitted answer with correct answer
+        is_correct = submitted_answer == correct_answer
+
+        # Get explanation for the correct answer (assuming you have a function for this)
+        explanation = Question.objects.get(id=question_id).explanation
+
+        # You can also save the user's answer and its correctness to the database if needed
+
+        # Return JSON response with correctness and explanation
+        return JsonResponse({'is_correct': is_correct, 'explanation': explanation})
+
     try:
         subject_today = get_today_subjects(request)[0]
     except:
@@ -190,20 +209,29 @@ def save_subject(request):
         start_date = request.POST.get("start_date")
         end_date = request.POST.get("end_date")
 
+
         try:
             # Try to get the existing subject
             subject = Subject.objects.get(id=subject_id)
+            print(f"Existing subject found with ID: {subject_id}")
         except Subject.DoesNotExist:
             # If the subject does not exist, create a new one
             subject = Subject.objects.create(id=subject_id, name=name, start_date=start_date, end_date=end_date)
+            print(f"New subject created with ID: {subject_id}")
 
         # Update the subject's name and dates
         subject.name = name
-        #subject.start_date = datetime.today()
-        #subject.end_date = datetime.today() + timedelta(days=2)
+        # subject.start_date = datetime.today()
+        # subject.end_date = datetime.today() + timedelta(days=2)
         subject.save()
+        print(f"Subject saved successfully: {subject}")
+
         # Redirect to subjects page or any other URL
         return redirect("subjects")
     else:
         # Return a 404 error if the request method is not POST
+        print("Method Not Allowed:", request.method)
         return HttpResponse("Method Not Allowed", status=404)
+
+
+

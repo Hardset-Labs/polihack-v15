@@ -22,14 +22,14 @@
             <div class="dropzone" id="video-dropzone">
                 Drag & Drop Video Here
             </div>
-            <input type="file" style="display: none;" id="id_video_files" />
+            <input type="file" style="display: none;" id="id_video_files" name="video_files" multiple>
             <div id="video-file-list"></div>
 
             <h3>Drag & Drop Document</h3>
             <div class="dropzone" id="document-dropzone">
                 Drag & Drop Document Here
             </div>
-            <input type="file" style="display: none;" id="id_pdf_files" />
+            <input type="file" style="display: none;" id="id_pdf_files" name="pdf_files" multiple>
             <div id="document-file-list"></div>
 
             <h3>Planning Schedule</h3>
@@ -44,14 +44,16 @@
                 </form>
             </div>
 
-
             {{ minutes_formset.management_form }}
             <div id="formset">
                 {% for form in minutes_formset %}
-                    <div class="formset-row">
-                        {{ form.date.label_tag }} {{ form.date }} {{ form.minutes.label_tag }} {{ form.minutes }}
-                        <!--<button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>-->
-                    </div>
+                    <!-- remove the last element -->
+                    {% if not forloop.last %}
+                        <div class="formset-row">
+                            {{ form.date.label_tag }} {{ form.date }} {{ form.minutes.label_tag }} {{ form.minutes }}
+                            <button type="button" class="btn btn-danger btn-sm remove-form">Remove</button>
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
             <!--<button type="button" class="btn btn-secondary" id="add-form">Add Another Entry</button>-->
@@ -59,6 +61,7 @@
         </form>
     </div>
 </div>
+
 
 <style>
 
@@ -91,47 +94,43 @@
 </style>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const saveSubjectBtn = document.getElementById("saveSubjectBtn");
+     document.addEventListener("DOMContentLoaded", function () {
+        const saveSubjectBtn = document.getElementById("saveSubjectBtn");
 
-    saveSubjectBtn.addEventListener("click", function () {
-        // Get the form element
-        const subjectForm = document.getElementById("subjectForm");
+        saveSubjectBtn.addEventListener("click", function () {
+            // Get the form element
+            const subjectForm = document.getElementById("subjectForm");
 
+            // Check if the form element exists
+            if (subjectForm instanceof HTMLFormElement) {
+                // Serialize form data
+                const formData = new FormData(subjectForm);
+                // Append the subject ID to the form data
+                formData.append("subject_id", "{{ subject.id }}");
 
-
-
-        // Check if the form element exists
-        if (subjectForm instanceof HTMLFormElement) {
-            // Serialize form data
-            const formData = new FormData(subjectForm);
-            // add subject_id to the data to be sent
-            const subject_id = "{{ subject.id }}";
-            formData.append("subject_id", subject_id);
-
-            // Send form data via AJAX
-            fetch("/save_subject/", {
-                method: "POST",
-                body: formData,
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Subject saved successfully, you can redirect or perform other actions
-                    console.log("Subject saved successfully");
-                    window.location.href = "/"; // Redirect to home page
-                } else {
-                    // Handle error response
-                    console.error("Failed to save subject");
-                }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-            });
-        } else {
-            console.error("Form element not found");
-        }
+                // Send form data via AJAX
+                fetch("/save_subject/", {
+                    method: "POST",
+                    body: formData,
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Subject saved successfully, you can redirect or perform other actions
+                        console.log("Subject saved successfully");
+                        window.location.href = "/"; // Redirect to home page
+                    } else {
+                        // Handle error response
+                        console.error("Failed to save subject");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+            } else {
+                console.error("Form element not found");
+            }
+        });
     });
-});
 
     document.addEventListener("DOMContentLoaded", function () {
         const form = document.getElementById("dateFormInterval");

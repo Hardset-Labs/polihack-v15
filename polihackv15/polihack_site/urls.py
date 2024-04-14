@@ -11,5 +11,4 @@ urlpatterns = [
     path('learn_now/', views.learn_now, name='learn_now'),
     path('learn_subject/<int:subject_id>/', views.learn_subject, name='learn_subject'),
     path('delete_subject/<int:subject_id>/', views.delete_subject, name='delete_subject'),
-    path('save_subject/', views.save_subject, name='save_subject'),
 ]# Default home URL

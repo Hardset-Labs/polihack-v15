@@ -53,11 +53,12 @@ Learn
     $(document).ready(function() {
         $('#submit-btn').click(function(e) {
             e.preventDefault();
-
+            let data_to_send = $('#question-form').serialize();
+            data_to_send += '&question_id={{ question.id }}'; // Adding the question ID to the data to send
             $.ajax({
                 type: "POST",
                 url: "{% url 'learn_now' %}",
-                data: $('#question-form').serialize(),
+                data: data_to_send,
                 success: function(response) {
                     if (response.is_correct) {
                         $('#feedback').html('<div class="alert alert-success" role="alert">Correct! ' + response.explanation + '</div>');
